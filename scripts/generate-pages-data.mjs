@@ -6,7 +6,17 @@ import { XMLParser } from "fast-xml-parser";
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const root = resolve(__dirname, "..");
 const outputPath = resolve(root, "docs/data/news.json");
+const outputScriptPath = resolve(root, "docs/data/news.js");
 const timeZone = "Asia/Kolkata";
+
+const segments = {
+  internationalStartup: "international-startup",
+  internationalGeneral: "international-general",
+  indiaStartup: "india-startup",
+  indiaNational: "india-national",
+  startupKerala: "startup-kerala",
+  socialMentions: "social-mentions",
+};
 
 function googleNewsSearch(query, options) {
   const params = new URLSearchParams({
@@ -30,6 +40,7 @@ const sources = [
     region: "Global",
     category: "Funding",
     sourceType: "search",
+    segment: segments.internationalStartup,
   },
   {
     id: "google-startup-ecosystem",
@@ -41,6 +52,19 @@ const sources = [
     region: "Global",
     category: "Ecosystem",
     sourceType: "search",
+    segment: segments.internationalStartup,
+  },
+  {
+    id: "google-international-business",
+    name: "International Business News",
+    feedUrl: googleNewsSearch(
+      "global business OR economy OR technology innovation when:2d",
+      { ceid: "US:en", gl: "US", hl: "en-US" }
+    ),
+    region: "Global",
+    category: "International",
+    sourceType: "search",
+    segment: segments.internationalGeneral,
   },
   {
     id: "google-india-startups",
@@ -53,6 +77,23 @@ const sources = [
     region: "India",
     category: "Ecosystem",
     sourceType: "search",
+    segment: segments.indiaStartup,
+  },
+  {
+    id: "google-india-national",
+    name: "India National Business News",
+    feedUrl: googleNewsSearch(
+      "India business OR economy OR technology OR policy when:2d",
+      {
+        ceid: "IN:en",
+        gl: "IN",
+        hl: "en-IN",
+      }
+    ),
+    region: "India",
+    category: "National",
+    sourceType: "search",
+    segment: segments.indiaNational,
   },
   {
     id: "google-ksum",
@@ -65,6 +106,7 @@ const sources = [
     region: "Kerala",
     category: "KSUM",
     sourceType: "search",
+    segment: segments.startupKerala,
     isKsum: true,
     isTraditional: true,
   },
@@ -78,7 +120,66 @@ const sources = [
     region: "Kerala",
     category: "KSUM",
     sourceType: "traditional",
+    segment: segments.startupKerala,
     isKsum: true,
+    isTraditional: true,
+  },
+  {
+    id: "google-startup-kerala",
+    name: "Startup Kerala Search",
+    feedUrl: googleNewsSearch(
+      '"Startup Kerala" OR "Kerala startups" OR "startups in Kerala" OR "Kerala startup ecosystem" OR "Kerala Startup Mission" when:30d',
+      { ceid: "IN:en", gl: "IN", hl: "en-IN" }
+    ),
+    region: "Kerala",
+    category: "Startup Kerala",
+    sourceType: "search",
+    segment: segments.startupKerala,
+    isKsum: true,
+    isTraditional: true,
+  },
+  {
+    id: "google-kochi-startups",
+    name: "Kochi and Kerala Startup Search",
+    feedUrl: googleNewsSearch(
+      '"Kochi startup" OR "Kerala startup" OR "Technopark startup" OR "Maker Village" OR "IEDC Kerala" when:30d',
+      { ceid: "IN:en", gl: "IN", hl: "en-IN" }
+    ),
+    region: "Kerala",
+    category: "Startup Kerala",
+    sourceType: "search",
+    segment: segments.startupKerala,
+    isKsum: true,
+    isTraditional: true,
+  },
+  {
+    id: "google-ksum-social",
+    name: "KSUM Social Media Mentions",
+    feedUrl: googleNewsSearch(
+      '"Kerala Startup Mission" Instagram OR LinkedIn OR Facebook OR YouTube OR X OR Twitter when:30d',
+      { ceid: "IN:en", gl: "IN", hl: "en-IN" }
+    ),
+    region: "Kerala",
+    category: "Social Media",
+    sourceType: "social",
+    segment: segments.socialMentions,
+    isKsum: true,
+    isSocial: true,
+    isTraditional: true,
+  },
+  {
+    id: "google-startup-kerala-social",
+    name: "Startup Kerala Social Mentions",
+    feedUrl: googleNewsSearch(
+      '"Startup Kerala" Instagram OR "Kerala startups" LinkedIn OR "KSUM" Instagram OR "Kerala Startup Mission" YouTube when:30d',
+      { ceid: "IN:en", gl: "IN", hl: "en-IN" }
+    ),
+    region: "Kerala",
+    category: "Social Media",
+    sourceType: "social",
+    segment: segments.socialMentions,
+    isKsum: true,
+    isSocial: true,
     isTraditional: true,
   },
   {
@@ -88,6 +189,7 @@ const sources = [
     region: "Global",
     category: "Startup",
     sourceType: "startup",
+    segment: segments.internationalStartup,
   },
   {
     id: "inc42",
@@ -96,6 +198,7 @@ const sources = [
     region: "India",
     category: "Ecosystem",
     sourceType: "startup",
+    segment: segments.indiaStartup,
   },
   {
     id: "yourstory",
@@ -104,6 +207,7 @@ const sources = [
     region: "India",
     category: "Ecosystem",
     sourceType: "startup",
+    segment: segments.indiaStartup,
   },
   {
     id: "entrackr",
@@ -112,6 +216,7 @@ const sources = [
     region: "India",
     category: "Funding",
     sourceType: "startup",
+    segment: segments.indiaStartup,
   },
   {
     id: "eu-startups",
@@ -120,6 +225,7 @@ const sources = [
     region: "Europe",
     category: "Ecosystem",
     sourceType: "startup",
+    segment: segments.internationalStartup,
   },
   {
     id: "sifted",
@@ -128,6 +234,7 @@ const sources = [
     region: "Europe",
     category: "Industry",
     sourceType: "industry",
+    segment: segments.internationalStartup,
   },
 ];
 
@@ -146,6 +253,33 @@ const traditionalPublishers = [
   "ani",
   "reuters",
   "bbc",
+];
+
+const startupKeralaKeywords = [
+  "kerala startup mission",
+  "ksum",
+  "startup kerala",
+  "kerala startups",
+  "startups in kerala",
+  "kerala startup ecosystem",
+  "kerala startup",
+  "kochi startup",
+  "kochi startups",
+  "technopark startup",
+  "maker village",
+  "iedc kerala",
+  "startup mission kerala",
+  "malabar startup",
+];
+
+const socialPlatforms = [
+  "instagram",
+  "linkedin",
+  "facebook",
+  "youtube",
+  "twitter",
+  " x ",
+  "threads",
 ];
 
 const parser = new XMLParser({
@@ -237,17 +371,23 @@ function monthInIndia(date = new Date()) {
 
 function isKsumArticle(source, title, summary, sourceName) {
   const haystack = `${title} ${summary} ${sourceName}`.toLowerCase();
-  return (
-    Boolean(source.isKsum) ||
-    haystack.includes("kerala startup mission") ||
-    /\bksum\b/i.test(haystack)
-  );
+  return Boolean(source.isKsum) || startupKeralaKeywords.some((keyword) => haystack.includes(keyword));
 }
 
 function isTraditionalArticle(source, sourceName, url) {
   if (source.isTraditional || source.sourceType === "traditional") return true;
   const haystack = `${sourceName} ${url}`.toLowerCase();
   return traditionalPublishers.some((publisher) => haystack.includes(publisher));
+}
+
+function socialPlatformFor(source, title, summary, sourceName, url) {
+  const haystack = ` ${title} ${summary} ${sourceName} ${url} `.toLowerCase();
+  if (source.isSocial) {
+    const platform = socialPlatforms.find((item) => haystack.includes(item));
+    return platform ? platform.trim().toUpperCase() : "SOCIAL";
+  }
+  const platform = socialPlatforms.find((item) => haystack.includes(item));
+  return platform ? platform.trim().toUpperCase() : "";
 }
 
 function parseFeed(xml, source) {
@@ -271,6 +411,8 @@ function parseFeed(xml, source) {
         readText(item.pubDate ?? item.published ?? item.updated ?? item["dc:date"])
       );
       const publishedDate = new Date(publishedAt);
+      const isKsum = isKsumArticle(source, title, summary, sourceName);
+      const socialPlatform = socialPlatformFor(source, title, summary, sourceName, canonicalUrl);
 
       return {
         id: canonicalUrl.toLowerCase(),
@@ -280,14 +422,17 @@ function parseFeed(xml, source) {
         sourceName,
         sourceFeedId: source.id,
         sourceType: source.sourceType,
+        segment: source.segment,
         region: source.region,
         category: source.category,
         summary: summary.slice(0, 500),
         publishedAt,
         publishedDay: dayInIndia(publishedDate),
         publishedMonth: monthInIndia(publishedDate),
-        isKsum: isKsumArticle(source, title, summary, sourceName),
+        isKsum,
         isTraditional: isTraditionalArticle(source, sourceName, canonicalUrl),
+        isSocial: Boolean(source.isSocial || socialPlatform),
+        socialPlatform,
       };
     })
     .filter(Boolean);
@@ -366,14 +511,33 @@ async function main() {
     }
   }
 
+  const bySegment = {
+    internationalStartup: articles.filter(
+      (article) => article.segment === segments.internationalStartup
+    ),
+    internationalGeneral: articles.filter(
+      (article) => article.segment === segments.internationalGeneral
+    ),
+    indiaStartup: articles.filter((article) => article.segment === segments.indiaStartup),
+    indiaNational: articles.filter((article) => article.segment === segments.indiaNational),
+    startupKerala: articles.filter(
+      (article) => article.segment === segments.startupKerala || article.isKsum
+    ),
+    socialMentions: articles.filter(
+      (article) => article.segment === segments.socialMentions || article.isSocial
+    ),
+  };
+
   const payload = {
     generatedAt: new Date().toISOString(),
     sourceCount: sources.length,
     failures,
+    segments: bySegment,
     stats: {
       todayCount: articles.filter((article) => article.publishedDay === today).length,
       monthCount: articles.filter((article) => article.publishedMonth === month).length,
       ksumCount: articles.filter((article) => article.isKsum).length,
+      socialCount: bySegment.socialMentions.length,
       traditionalCount: articles.filter((article) => article.isTraditional).length,
       totalCount: articles.length,
     },
@@ -381,13 +545,18 @@ async function main() {
     categoryCounts: countBy(articles.filter((article) => article.publishedMonth === month), "category"),
     regionCounts: countBy(articles.filter((article) => article.publishedMonth === month), "region"),
     recentArticles: articles.slice(0, 80),
-    ksumArticles: articles.filter((article) => article.isKsum).slice(0, 60),
+    ksumArticles: bySegment.startupKerala.slice(0, 80),
+    socialArticles: bySegment.socialMentions.slice(0, 80),
   };
 
   await mkdir(dirname(outputPath), { recursive: true });
   await writeFile(outputPath, `${JSON.stringify(payload, null, 2)}\n`);
+  await writeFile(
+    outputScriptPath,
+    `window.__NEWS_DATA__ = ${JSON.stringify(payload)};\n`
+  );
   console.log(
-    `Wrote ${payload.stats.totalCount} articles, ${payload.stats.ksumCount} KSUM records to ${outputPath}`
+    `Wrote ${payload.stats.totalCount} articles, ${payload.stats.ksumCount} Startup Kerala records, ${payload.stats.socialCount} social records to ${outputPath}`
   );
   if (failures.length > 0) {
     console.warn(`Feed failures: ${failures.map((item) => item.source).join(", ")}`);
