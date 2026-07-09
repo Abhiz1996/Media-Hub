@@ -3,10 +3,6 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta
-      http-equiv="refresh"
-      content="1; url=https://global-startup-news-tracker.ksum-4237.chatgpt.site"
-    />
     <title>Global Startup News Tracker</title>
     <style>
       :root {
@@ -18,53 +14,563 @@
         color: #0f172a;
       }
 
+      * {
+        box-sizing: border-box;
+      }
+
       body {
         margin: 0;
         min-height: 100vh;
       }
 
+      a {
+        color: inherit;
+        text-decoration: none;
+      }
+
       main {
+        margin: 0 auto;
+        max-width: 1280px;
+        padding: 20px;
+      }
+
+      header {
+        align-items: end;
+        border-bottom: 1px solid #d7ded2;
+        display: flex;
+        gap: 24px;
+        justify-content: space-between;
+        padding-bottom: 20px;
+      }
+
+      h1,
+      h2,
+      h3,
+      p {
+        margin: 0;
+      }
+
+      h1 {
+        font-size: clamp(2rem, 4vw, 3rem);
+        letter-spacing: 0;
+        margin-top: 8px;
+      }
+
+      h2 {
+        font-size: 1rem;
+      }
+
+      .eyebrow {
+        color: #047857;
+        font-size: 0.75rem;
+        font-weight: 800;
+        text-transform: uppercase;
+      }
+
+      .subcopy {
+        color: #475569;
+        font-size: 0.9rem;
+        line-height: 1.7;
+        margin-top: 10px;
+        max-width: 720px;
+      }
+
+      .updated {
+        background: #ecfdf5;
+        border: 1px solid #bbf7d0;
+        border-radius: 8px;
+        color: #065f46;
+        min-width: 280px;
+        padding: 14px;
+      }
+
+      .updated strong {
+        display: block;
+        font-size: 0.9rem;
+      }
+
+      .updated span {
+        display: block;
+        font-size: 0.8rem;
+        line-height: 1.5;
+        margin-top: 4px;
+      }
+
+      .metrics {
+        display: grid;
+        gap: 12px;
+        grid-template-columns: repeat(6, minmax(0, 1fr));
+        margin-top: 24px;
+      }
+
+      .metric,
+      .panel {
+        background: #ffffff;
+        border: 1px solid #dbe3d4;
+        border-radius: 8px;
+      }
+
+      .metric {
+        padding: 16px;
+      }
+
+      .metric span {
+        color: #64748b;
+        display: block;
+        font-size: 0.75rem;
+        font-weight: 700;
+      }
+
+      .metric strong {
+        display: block;
+        font-size: 2rem;
+        margin-top: 6px;
+      }
+
+      .grid {
+        display: grid;
+        gap: 16px;
+        grid-template-columns: 1.65fr 1fr;
+        margin-top: 16px;
+      }
+
+      .panel-heading {
+        align-items: center;
+        border-bottom: 1px solid #e2e8f0;
+        display: flex;
+        justify-content: space-between;
+        padding: 14px 16px;
+      }
+
+      .pill {
+        background: #eff6ff;
+        border-radius: 999px;
+        color: #0369a1;
+        font-size: 0.75rem;
+        font-weight: 800;
+        padding: 5px 10px;
+      }
+
+      .article-list,
+      .link-list {
+        display: grid;
+      }
+
+      .article {
+        border-bottom: 1px solid #f1f5f9;
+        display: grid;
+        gap: 12px;
+        grid-template-columns: auto 1fr auto;
+        padding: 16px;
+      }
+
+      .article:last-child {
+        border-bottom: 0;
+      }
+
+      .article:hover,
+      .link-list a:hover {
+        background: #f8fafc;
+      }
+
+      .icon {
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
+        border-radius: 6px;
+        height: 36px;
+        padding: 4px;
+        width: 36px;
+      }
+
+      .meta {
+        color: #64748b;
+        display: flex;
+        flex-wrap: wrap;
+        font-size: 0.75rem;
+        gap: 8px;
+      }
+
+      .title {
+        font-size: 0.95rem;
+        font-weight: 800;
+        line-height: 1.5;
+        margin-top: 5px;
+      }
+
+      .summary {
+        color: #64748b;
+        font-size: 0.8rem;
+        line-height: 1.6;
+        margin-top: 5px;
+      }
+
+      .date {
+        color: #64748b;
+        font-size: 0.75rem;
+        text-align: right;
+        white-space: nowrap;
+      }
+
+      .bars {
+        display: grid;
+        gap: 12px;
+        padding: 16px;
+      }
+
+      .bar-row {
         align-items: center;
         display: grid;
-        min-height: 100vh;
-        padding: 24px;
+        gap: 10px;
+        grid-template-columns: 88px 1fr 34px;
       }
 
-      section {
-        border: 1px solid #d7ded2;
-        border-radius: 8px;
-        background: #ffffff;
-        margin: 0 auto;
-        max-width: 720px;
-        padding: 32px;
+      .bar-label,
+      .bar-count {
+        color: #64748b;
+        font-size: 0.75rem;
+        font-weight: 800;
       }
 
-      p {
-        color: #475569;
-        line-height: 1.7;
+      .bar-count {
+        text-align: right;
       }
 
-      a {
-        color: #047857;
-        font-weight: 700;
+      .bar-track {
+        background: #f1f5f9;
+        border-radius: 999px;
+        height: 8px;
+      }
+
+      .bar-fill {
+        background: #10b981;
+        border-radius: 999px;
+        height: 8px;
+        min-width: 4px;
+      }
+
+      .category .bar-fill {
+        background: #8b5cf6;
+      }
+
+      .link-list a {
+        border-bottom: 1px solid #f1f5f9;
+        color: #334155;
+        display: block;
+        font-size: 0.9rem;
+        font-weight: 800;
+        line-height: 1.5;
+        padding: 16px;
+      }
+
+      .tag-wrap {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        padding: 16px;
+      }
+
+      .tag {
+        background: #f1f5f9;
+        border-radius: 999px;
+        color: #334155;
+        font-size: 0.75rem;
+        font-weight: 800;
+        padding: 7px 10px;
+      }
+
+      .empty,
+      .error {
+        color: #64748b;
+        font-size: 0.9rem;
+        padding: 28px 16px;
+        text-align: center;
+      }
+
+      .error {
+        color: #b91c1c;
+      }
+
+      @media (max-width: 980px) {
+        header,
+        .grid {
+          grid-template-columns: 1fr;
+        }
+
+        header {
+          align-items: stretch;
+          display: grid;
+        }
+
+        .metrics {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+      }
+
+      @media (max-width: 680px) {
+        main {
+          padding: 14px;
+        }
+
+        .metrics {
+          grid-template-columns: 1fr;
+        }
+
+        .article {
+          grid-template-columns: auto 1fr;
+        }
+
+        .date {
+          grid-column: 2;
+          text-align: left;
+        }
       }
     </style>
   </head>
   <body>
     <main>
-      <section>
-        <p>Global Startup News Tracker</p>
-        <h1>Opening the live dashboard...</h1>
-        <p>
-          This GitHub Pages entry redirects to the deployed dashboard with the
-          backend database, daily 10:00 IST refresh, and article ingestion.
-        </p>
-        <p>
-          <a href="https://global-startup-news-tracker.ksum-4237.chatgpt.site">
-            Open the live dashboard
-          </a>
-        </p>
+      <header>
+        <div>
+          <p class="eyebrow">Startup ecosystem intelligence</p>
+          <h1>Global Startup News Tracker</h1>
+          <p class="subcopy">
+            Public tracker for startup, industry, and Kerala Startup Mission
+            coverage. The GitHub Pages build refreshes the article data every
+            morning at 10:00 IST.
+          </p>
+        </div>
+        <div class="updated">
+          <strong>Public GitHub Pages dashboard</strong>
+          <span id="updated-at">Loading latest refresh...</span>
+        </div>
+      </header>
+
+      <section class="metrics" id="metrics"></section>
+
+      <section class="grid">
+        <div class="panel">
+          <div class="panel-heading">
+            <h2>Startup ecosystem feed</h2>
+            <span class="pill" id="latest-count">Loading</span>
+          </div>
+          <div class="article-list" id="recent-list"></div>
+        </div>
+
+        <aside>
+          <div class="panel">
+            <div class="panel-heading">
+              <h2>Last 14 days</h2>
+            </div>
+            <div class="bars" id="daily-bars"></div>
+          </div>
+
+          <div class="panel" style="margin-top: 16px">
+            <div class="panel-heading">
+              <h2>Category mix</h2>
+            </div>
+            <div class="bars category" id="category-bars"></div>
+          </div>
+        </aside>
+      </section>
+
+      <section class="grid">
+        <div class="panel">
+          <div class="panel-heading">
+            <h2>Kerala Startup Mission coverage</h2>
+            <span class="pill">KSUM</span>
+          </div>
+          <div class="article-list" id="ksum-list"></div>
+        </div>
+
+        <aside class="panel">
+          <div class="panel-heading">
+            <h2>KSUM search links</h2>
+          </div>
+          <div class="link-list">
+            <a
+              href="https://news.google.com/search?q=%22Kerala%20Startup%20Mission%22"
+              target="_blank"
+              rel="noreferrer"
+              >Google News: Kerala Startup Mission</a
+            >
+            <a
+              href="https://news.google.com/search?q=KSUM%20startup"
+              target="_blank"
+              rel="noreferrer"
+              >Google News: KSUM</a
+            >
+            <a
+              href="https://news.google.com/search?q=%22Kerala%20Startup%20Mission%22%20Kerala%20Malayalam"
+              target="_blank"
+              rel="noreferrer"
+              >Traditional media: KSUM in Kerala press</a
+            >
+          </div>
+          <div class="panel-heading">
+            <h2>Region mix</h2>
+          </div>
+          <div class="tag-wrap" id="regions"></div>
+        </aside>
       </section>
     </main>
+
+    <script>
+      const formatter = new Intl.NumberFormat("en-IN");
+      const dateTime = new Intl.DateTimeFormat("en-IN", {
+        day: "2-digit",
+        hour: "2-digit",
+        minute: "2-digit",
+        month: "short",
+        timeZone: "Asia/Kolkata",
+      });
+
+      function domainFromUrl(url) {
+        try {
+          return new URL(url).hostname.replace(/^www\./, "");
+        } catch {
+          return "news.google.com";
+        }
+      }
+
+      function htmlEscape(value) {
+        return String(value)
+          .replaceAll("&", "&amp;")
+          .replaceAll("<", "&lt;")
+          .replaceAll(">", "&gt;")
+          .replaceAll('"', "&quot;");
+      }
+
+      function renderMetrics(stats) {
+        const metrics = [
+          ["Today", stats.todayCount, "Published today"],
+          ["This month", stats.monthCount, "Current month"],
+          ["KSUM", stats.ksumCount, "Tracked KSUM links"],
+          ["Sources", stats.sourceCount, "Configured feeds"],
+          ["Traditional", stats.traditionalCount, "Detected press links"],
+          ["Total", stats.totalCount, "Stored articles"],
+        ];
+
+        document.getElementById("metrics").innerHTML = metrics
+          .map(
+            ([label, value, detail]) => `
+              <div class="metric">
+                <span>${label}</span>
+                <strong>${formatter.format(value)}</strong>
+                <span>${detail}</span>
+              </div>
+            `
+          )
+          .join("");
+      }
+
+      function renderArticles(targetId, articles, emptyLabel) {
+        const target = document.getElementById(targetId);
+        if (!articles.length) {
+          target.innerHTML = `<p class="empty">${emptyLabel}</p>`;
+          return;
+        }
+
+        target.innerHTML = articles
+          .map((article) => {
+            const domain = domainFromUrl(article.canonicalUrl || article.url);
+            const summary = article.summary
+              ? `<p class="summary">${htmlEscape(article.summary)}</p>`
+              : "";
+            const traditional = article.isTraditional
+              ? "<span>Traditional media</span>"
+              : "";
+            return `
+              <a class="article" href="${htmlEscape(article.url)}" target="_blank" rel="noreferrer">
+                <img class="icon" alt="" src="https://www.google.com/s2/favicons?domain=${domain}&sz=64" />
+                <div>
+                  <div class="meta">
+                    <span>${htmlEscape(article.sourceName)}</span>
+                    <span>${htmlEscape(article.region)}</span>
+                    <span>${htmlEscape(article.category)}</span>
+                    ${traditional}
+                  </div>
+                  <p class="title">${htmlEscape(article.title)}</p>
+                  ${summary}
+                </div>
+                <time class="date">${dateTime.format(new Date(article.publishedAt))}</time>
+              </a>
+            `;
+          })
+          .join("");
+      }
+
+      function renderBars(targetId, rows, keyName) {
+        const target = document.getElementById(targetId);
+        if (!rows.length) {
+          target.innerHTML = '<p class="empty">No data yet.</p>';
+          return;
+        }
+
+        const max = Math.max(1, ...rows.map((row) => row.count));
+        target.innerHTML = rows
+          .map((row) => {
+            const label = row[keyName] || row.label;
+            const width = Math.max(4, (row.count / max) * 100);
+            return `
+              <div class="bar-row">
+                <span class="bar-label">${htmlEscape(label)}</span>
+                <div class="bar-track">
+                  <div class="bar-fill" style="width: ${width}%"></div>
+                </div>
+                <span class="bar-count">${formatter.format(row.count)}</span>
+              </div>
+            `;
+          })
+          .join("");
+      }
+
+      function renderRegions(rows) {
+        const target = document.getElementById("regions");
+        if (!rows.length) {
+          target.innerHTML = '<span class="empty">No region data yet.</span>';
+          return;
+        }
+        target.innerHTML = rows
+          .map(
+            (row) =>
+              `<span class="tag">${htmlEscape(row.label)}: ${formatter.format(row.count)}</span>`
+          )
+          .join("");
+      }
+
+      async function main() {
+        try {
+          const response = await fetch(`data/news.json?ts=${Date.now()}`);
+          if (!response.ok) throw new Error("Unable to load news data");
+          const data = await response.json();
+
+          document.getElementById("updated-at").textContent =
+            `Last data build: ${dateTime.format(new Date(data.generatedAt))}`;
+          document.getElementById("latest-count").textContent =
+            `${formatter.format(data.recentArticles.length)} latest`;
+
+          renderMetrics({ ...data.stats, sourceCount: data.sourceCount });
+          renderArticles(
+            "recent-list",
+            data.recentArticles.slice(0, 16),
+            "No articles have been generated yet."
+          );
+          renderArticles(
+            "ksum-list",
+            data.ksumArticles.slice(0, 12),
+            "No KSUM mentions have been generated yet."
+          );
+          renderBars("daily-bars", data.dailyCounts, "day");
+          renderBars("category-bars", data.categoryCounts, "label");
+          renderRegions(data.regionCounts);
+        } catch (error) {
+          document.getElementById("updated-at").textContent =
+            "Could not load generated data.";
+          document.getElementById("recent-list").innerHTML =
+            '<p class="error">The public dashboard data is not available yet. The next GitHub Pages refresh will rebuild it.</p>';
+        }
+      }
+
+      main();
+    </script>
   </body>
 </html>
