@@ -183,6 +183,42 @@ const sources = [
     isTraditional: true,
   },
   {
+    id: "google-startup-social-global",
+    name: "Global Startup Social Mentions",
+    feedUrl: googleNewsSearch(
+      "startup Instagram OR LinkedIn OR YouTube OR X funding OR launch announcement when:7d",
+      { ceid: "US:en", gl: "US", hl: "en-US" }
+    ),
+    region: "Global",
+    category: "Social Media",
+    sourceType: "social",
+    segment: segments.socialMentions,
+    isSocial: true,
+    isTraditional: true,
+  },
+  {
+    id: "reddit-kerala-startup",
+    name: "Reddit: Kerala Startup Mission",
+    feedUrl:
+      "https://www.reddit.com/search.rss?q=%22Kerala+Startup+Mission%22+OR+%22Startup+Kerala%22+OR+KSUM&sort=new&limit=50",
+    region: "Kerala",
+    category: "Social Media",
+    sourceType: "social",
+    segment: segments.socialMentions,
+    isKsum: true,
+    isSocial: true,
+  },
+  {
+    id: "hackernews-startup",
+    name: "Hacker News: startup",
+    feedUrl: "https://hnrss.org/newest?q=startup+OR+%22venture+funding%22&count=50",
+    region: "Global",
+    category: "Social Media",
+    sourceType: "social",
+    segment: segments.socialMentions,
+    isSocial: true,
+  },
+  {
     id: "techcrunch-startups",
     name: "TechCrunch Startups",
     feedUrl: "https://techcrunch.com/category/startups/feed/",
@@ -280,6 +316,9 @@ const socialPlatforms = [
   "twitter",
   " x ",
   "threads",
+  "reddit",
+  "hacker news",
+  "ycombinator",
 ];
 
 const parser = new XMLParser({

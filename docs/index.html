@@ -508,9 +508,11 @@
             <h2>Data note</h2>
           </div>
           <p class="note" id="data-note">
-            Social mentions use public indexed coverage and news search terms.
-            Direct Instagram post tracking needs Instagram Graph API or a social
-            listening provider connected with valid account permissions.
+            Social mentions combine public RSS from Reddit and Hacker News with
+            Google News social-platform searches. The dashboard rebuilds every
+            few hours and this page re-checks for fresh data automatically.
+            Direct Instagram, LinkedIn, Facebook, or X post tracking needs each
+            platform's official API and access tokens, so it is not scraped here.
           </p>
         </aside>
       </section>
@@ -820,35 +822,55 @@
         renderFocusedLinks(tabConfig);
       }
 
-      async function main() {
+      // How often an open tab re-checks the published data for a fresh build.
+      const REFRESH_INTERVAL_MS = 5 * 60 * 1000;
+
+      function applyData(data) {
+        dashboardData = data;
+        document.getElementById("updated-at").textContent =
+          `Last data build: ${dateTime.format(new Date(dashboardData.generatedAt))}`;
+        renderMetrics({
+          ...dashboardData.stats,
+          sourceCount: dashboardData.sourceCount,
+        });
+        renderActiveView();
+      }
+
+      async function fetchLatestData() {
+        const response = await fetch(`data/news.json?ts=${Date.now()}`, {
+          cache: "no-store",
+        });
+        if (!response.ok) throw new Error("Unable to load news data");
+        return response.json();
+      }
+
+      async function pollForUpdates() {
         try {
-          if (window.__NEWS_DATA__) {
-            dashboardData = window.__NEWS_DATA__;
-          } else {
-            const response = await fetch(`data/news.json?ts=${Date.now()}`);
-            if (!response.ok) throw new Error("Unable to load news data");
-            dashboardData = await response.json();
+          const latest = await fetchLatestData();
+          if (!dashboardData || latest.generatedAt !== dashboardData.generatedAt) {
+            applyData(latest);
           }
+        } catch {
+          // Keep the currently displayed data if a refresh check fails.
+        }
+      }
 
-          document.getElementById("updated-at").textContent =
-            `Last data build: ${dateTime.format(new Date(dashboardData.generatedAt))}`;
+      async function main() {
+        document.querySelectorAll(".tab").forEach((button) => {
+          button.addEventListener("click", () => setActiveTab(button.dataset.tab));
+        });
 
-          renderMetrics({
-            ...dashboardData.stats,
-            sourceCount: dashboardData.sourceCount,
-          });
-
-          document.querySelectorAll(".tab").forEach((button) => {
-            button.addEventListener("click", () => setActiveTab(button.dataset.tab));
-          });
-
-          renderActiveView();
+        try {
+          const initialData = window.__NEWS_DATA__ ?? (await fetchLatestData());
+          applyData(initialData);
         } catch (error) {
           document.getElementById("updated-at").textContent =
             "Could not load generated data.";
           document.getElementById("feed-list").innerHTML =
             '<p class="error">The public dashboard data is not available yet. The next GitHub Pages refresh will rebuild it.</p>';
         }
+
+        window.setInterval(pollForUpdates, REFRESH_INTERVAL_MS);
       }
 
       main();

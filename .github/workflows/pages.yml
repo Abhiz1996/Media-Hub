@@ -5,7 +5,8 @@ on:
     branches:
       - main
   schedule:
-    - cron: "30 4 * * *"
+    # Rebuild and redeploy every 3 hours (times are UTC; GitHub may delay runs).
+    - cron: "0 */3 * * *"
   workflow_dispatch:
 
 permissions:
