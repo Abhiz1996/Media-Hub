@@ -5,12 +5,13 @@ on:
     branches:
       - main
   schedule:
+    # GitHub cron uses UTC. These run at 09:00, 10:00, 12:00, 15:00, 18:00, and 21:00 IST.
     - cron: "30 3 * * *"
-    - cron: "0 4 * * *"
     - cron: "30 4 * * *"
-    - cron: "0 5 * * *"
-    - cron: "30 5 * * *"
-    - cron: "0 6 * * *"
+    - cron: "30 6 * * *"
+    - cron: "30 9 * * *"
+    - cron: "30 12 * * *"
+    - cron: "30 15 * * *"
   workflow_dispatch:
 
 permissions:

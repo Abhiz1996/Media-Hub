@@ -21,6 +21,7 @@
       body {
         margin: 0;
         min-height: 100vh;
+        padding-bottom: 86px;
       }
 
       a {
@@ -101,6 +102,68 @@
         font-size: 0.8rem;
         line-height: 1.5;
         margin-top: 4px;
+      }
+
+      .refresh-tab {
+        align-items: center;
+        background: #0f172a;
+        border: 1px solid rgba(255, 255, 255, 0.14);
+        border-radius: 8px;
+        bottom: 14px;
+        box-shadow: 0 18px 42px rgba(15, 23, 42, 0.22);
+        color: #ffffff;
+        display: flex;
+        gap: 14px;
+        justify-content: space-between;
+        left: 50%;
+        max-width: 960px;
+        padding: 10px 12px;
+        position: fixed;
+        transform: translateX(-50%);
+        width: calc(100% - 28px);
+        z-index: 20;
+      }
+
+      .refresh-primary {
+        align-items: center;
+        display: flex;
+        gap: 10px;
+        min-width: 0;
+      }
+
+      .refresh-dot {
+        background: #34d399;
+        border-radius: 999px;
+        box-shadow: 0 0 0 5px rgba(52, 211, 153, 0.16);
+        flex: 0 0 auto;
+        height: 9px;
+        width: 9px;
+      }
+
+      .refresh-label,
+      .refresh-schedule {
+        color: #cbd5e1;
+        font-size: 0.72rem;
+        font-weight: 800;
+        text-transform: uppercase;
+      }
+
+      .refresh-time {
+        display: block;
+        font-size: 0.92rem;
+        margin-top: 2px;
+        overflow-wrap: anywhere;
+      }
+
+      .refresh-schedule {
+        background: rgba(255, 255, 255, 0.08);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 999px;
+        color: #e2e8f0;
+        flex: 0 0 auto;
+        padding: 8px 10px;
+        text-align: right;
+        text-transform: none;
       }
 
       .metrics {
@@ -387,6 +450,10 @@
       }
 
       @media (max-width: 760px) {
+        body {
+          padding-bottom: 128px;
+        }
+
         main {
           padding: 12px;
         }
@@ -413,6 +480,20 @@
           grid-column: 2;
           text-align: left;
         }
+
+        .refresh-tab {
+          align-items: stretch;
+          bottom: 8px;
+          flex-direction: column;
+          gap: 10px;
+          padding: 11px;
+          width: calc(100% - 16px);
+        }
+
+        .refresh-schedule {
+          text-align: left;
+          width: 100%;
+        }
       }
 
       @media (max-width: 520px) {
@@ -432,7 +513,8 @@
           <p class="subcopy">
             Public dashboard for international startup news, India startup
             coverage, Startup Kerala and KSUM mentions, and public social-media
-            coverage signals. Data refreshes every morning at 10:00 IST.
+            coverage signals. Data refreshes automatically 6 times daily:
+            09:00, 10:00, 12:00, 15:00, 18:00, and 21:00 IST.
           </p>
         </div>
         <div class="status-box">
@@ -516,6 +598,19 @@
       </section>
     </main>
 
+    <div class="refresh-tab" role="status" aria-live="polite">
+      <div class="refresh-primary">
+        <span class="refresh-dot" aria-hidden="true"></span>
+        <div>
+          <span class="refresh-label">Last news refresh</span>
+          <strong class="refresh-time" id="bottom-updated-at">Loading latest refresh...</strong>
+        </div>
+      </div>
+      <span class="refresh-schedule" id="refresh-schedule">
+        Auto-refreshes 6x daily
+      </span>
+    </div>
+
     <script src="data/news.js"></script>
     <script>
       const formatter = new Intl.NumberFormat("en-IN");
@@ -526,6 +621,33 @@
         month: "short",
         timeZone: "Asia/Kolkata",
       });
+      const fullDateTime = new Intl.DateTimeFormat("en-IN", {
+        day: "2-digit",
+        hour: "2-digit",
+        minute: "2-digit",
+        month: "short",
+        timeZone: "Asia/Kolkata",
+        timeZoneName: "short",
+        year: "numeric",
+      });
+      const istDateParts = new Intl.DateTimeFormat("en-CA", {
+        day: "2-digit",
+        hour: "2-digit",
+        hour12: false,
+        hourCycle: "h23",
+        minute: "2-digit",
+        month: "2-digit",
+        timeZone: "Asia/Kolkata",
+        year: "numeric",
+      });
+      const refreshSlots = [
+        { label: "09:00", minutes: 9 * 60 },
+        { label: "10:00", minutes: 10 * 60 },
+        { label: "12:00", minutes: 12 * 60 },
+        { label: "15:00", minutes: 15 * 60 },
+        { label: "18:00", minutes: 18 * 60 },
+        { label: "21:00", minutes: 21 * 60 },
+      ];
 
       const tabs = {
         international: {
@@ -628,6 +750,26 @@
           .replaceAll("<", "&lt;")
           .replaceAll(">", "&gt;")
           .replaceAll('"', "&quot;");
+      }
+
+      function nextRefreshLabel(reference = new Date()) {
+        const parts = Object.fromEntries(
+          istDateParts.formatToParts(reference).map((part) => [part.type, part.value])
+        );
+        const currentMinutes = Number(parts.hour) * 60 + Number(parts.minute);
+        const nextSlot = refreshSlots.find((slot) => slot.minutes > currentMinutes);
+        const slot = nextSlot || refreshSlots[0];
+        const dayLabel = nextSlot ? "today" : "tomorrow";
+        return `Next scheduled refresh: ${slot.label} IST ${dayLabel} - 6x daily`;
+      }
+
+      function renderRefreshStatus(generatedAt) {
+        const refreshedAt = new Date(generatedAt);
+        const readableTime = fullDateTime.format(refreshedAt);
+        document.getElementById("updated-at").textContent =
+          `Last news refresh: ${dateTime.format(refreshedAt)}`;
+        document.getElementById("bottom-updated-at").textContent = readableTime;
+        document.getElementById("refresh-schedule").textContent = nextRefreshLabel();
       }
 
       function countBy(items, key) {
@@ -830,8 +972,7 @@
             dashboardData = await response.json();
           }
 
-          document.getElementById("updated-at").textContent =
-            `Last data build: ${dateTime.format(new Date(dashboardData.generatedAt))}`;
+          renderRefreshStatus(dashboardData.generatedAt);
 
           renderMetrics({
             ...dashboardData.stats,
@@ -846,6 +987,10 @@
         } catch (error) {
           document.getElementById("updated-at").textContent =
             "Could not load generated data.";
+          document.getElementById("bottom-updated-at").textContent =
+            "Refresh data unavailable";
+          document.getElementById("refresh-schedule").textContent =
+            "Auto-refreshes 6x daily";
           document.getElementById("feed-list").innerHTML =
             '<p class="error">The public dashboard data is not available yet. The next GitHub Pages refresh will rebuild it.</p>';
         }
