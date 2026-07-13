@@ -5,7 +5,12 @@ on:
     branches:
       - main
   schedule:
+    - cron: "30 3 * * *"
+    - cron: "0 4 * * *"
     - cron: "30 4 * * *"
+    - cron: "0 5 * * *"
+    - cron: "30 5 * * *"
+    - cron: "0 6 * * *"
   workflow_dispatch:
 
 permissions:
