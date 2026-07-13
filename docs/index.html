@@ -166,6 +166,39 @@
         text-transform: none;
       }
 
+      .refresh-actions {
+        align-items: center;
+        display: flex;
+        gap: 10px;
+      }
+
+      .refresh-btn {
+        background: #10b981;
+        border: 0;
+        border-radius: 999px;
+        color: #ffffff;
+        cursor: pointer;
+        font-size: 0.75rem;
+        font-weight: 800;
+        padding: 8px 14px;
+        transition: background 0.15s, opacity 0.15s;
+        white-space: nowrap;
+      }
+
+      .refresh-btn:hover {
+        background: #059669;
+      }
+
+      .refresh-btn:active {
+        opacity: 0.7;
+      }
+
+      .refresh-btn[disabled] {
+        background: #64748b;
+        cursor: not-allowed;
+        opacity: 0.6;
+      }
+
       .metrics {
         display: grid;
         gap: 10px;
@@ -494,6 +527,16 @@
           text-align: left;
           width: 100%;
         }
+
+        .refresh-actions {
+          flex-wrap: wrap;
+          width: 100%;
+        }
+
+        .refresh-btn {
+          width: 100%;
+          text-align: center;
+        }
       }
 
       @media (max-width: 520px) {
@@ -608,9 +651,14 @@
           <strong class="refresh-time" id="bottom-updated-at">Loading latest refresh...</strong>
         </div>
       </div>
-      <span class="refresh-schedule" id="refresh-schedule">
-        Auto-refreshes 6x daily
-      </span>
+      <div class="refresh-actions">
+        <span class="refresh-schedule" id="refresh-schedule">
+          Auto-refreshes 6x daily
+        </span>
+        <button class="refresh-btn" id="manual-refresh-btn" type="button" title="Check for new data now">
+          ↻ Refresh now
+        </button>
+      </div>
     </div>
 
     <script src="data/news.js"></script>
@@ -1016,6 +1064,27 @@
         }
 
         window.setInterval(pollForUpdates, REFRESH_INTERVAL_MS);
+
+        document.getElementById("manual-refresh-btn").addEventListener("click", async function () {
+          const btn = this;
+          btn.disabled = true;
+          btn.textContent = "↻ Checking...";
+          try {
+            const latest = await fetchLatestData();
+            if (!dashboardData || latest.generatedAt !== dashboardData.generatedAt) {
+              applyData(latest);
+              btn.textContent = "✓ Updated!";
+            } else {
+              btn.textContent = "✓ Already latest";
+            }
+          } catch {
+            btn.textContent = "✗ Failed";
+          }
+          setTimeout(() => {
+            btn.disabled = false;
+            btn.textContent = "↻ Refresh now";
+          }, 2000);
+        });
       }
 
       main();
