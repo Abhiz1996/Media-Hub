@@ -5,8 +5,14 @@ on:
     branches:
       - main
   schedule:
-    # Rebuild and redeploy every 3 hours (times are UTC; GitHub may delay runs).
-    - cron: "0 */3 * * *"
+    # GitHub cron uses UTC. These run at 09:00, 10:00, 12:00, 15:00, 18:00, and 21:00 IST.
+    # (GitHub may delay scheduled runs under load.)
+    - cron: "30 3 * * *"
+    - cron: "30 4 * * *"
+    - cron: "30 6 * * *"
+    - cron: "30 9 * * *"
+    - cron: "30 12 * * *"
+    - cron: "30 15 * * *"
   workflow_dispatch:
 
 permissions:
