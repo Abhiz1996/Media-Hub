@@ -98,7 +98,151 @@ const sources = [
   {
     id: "google-ksum",
     name: "Kerala Startup Mission Search",
-    feedUrl: googleNewsSearch('"Kerala Startup Mission" OR KSUM when:30d', {
+    feedUrl: googleNewsSearch(
+      '"Kerala Startup Mission" OR KSUM OR "Kerala Startup Mission grant" OR "KSUM funding" when:45d',
+      {
+        ceid: "IN:en",
+        gl: "IN",
+        hl: "en-IN",
+      }
+    ),
+    region: "Kerala",
+    category: "KSUM",
+    sourceType: "search",
+    segment: segments.startupKerala,
+    isKsum: true,
+    isTraditional: true,
+  },
+  {
+    id: "google-ksum-programs",
+    name: "KSUM Programs and Events Search",
+    feedUrl: googleNewsSearch(
+      'KSUM startup OR "Kerala Startup Mission" incubator OR "Kerala Startup Mission" accelerator OR "Kerala Startup Mission" programme OR "Kerala Startup Mission" event when:45d',
+      {
+        ceid: "IN:en",
+        gl: "IN",
+        hl: "en-IN",
+      }
+    ),
+    region: "Kerala",
+    category: "KSUM",
+    sourceType: "search",
+    segment: segments.startupKerala,
+    isKsum: true,
+    isTraditional: true,
+  },
+  {
+    id: "google-kerala-startup-funding",
+    name: "Kerala Startup Funding Search",
+    feedUrl: googleNewsSearch(
+      '"Kerala startup funding" OR "Kerala startup raises" OR "Kerala-based startup" funding OR "Kochi startup" funding OR "Trivandrum startup" funding when:45d',
+      {
+        ceid: "IN:en",
+        gl: "IN",
+        hl: "en-IN",
+      }
+    ),
+    region: "Kerala",
+    category: "Funding",
+    sourceType: "search",
+    segment: segments.startupKerala,
+    isKsum: true,
+    isTraditional: true,
+  },
+  {
+    id: "google-kerala-startup-cities",
+    name: "Kerala Startup City Hubs Search",
+    feedUrl: googleNewsSearch(
+      '"Kochi startup" OR "Thiruvananthapuram startup" OR "Trivandrum startup" OR "Kozhikode startup" OR "Calicut startup" OR "Thrissur startup" OR "Malappuram startup" when:45d',
+      {
+        ceid: "IN:en",
+        gl: "IN",
+        hl: "en-IN",
+      }
+    ),
+    region: "Kerala",
+    category: "Startup Kerala",
+    sourceType: "search",
+    segment: segments.startupKerala,
+    isKsum: true,
+    isTraditional: true,
+  },
+  {
+    id: "google-kerala-innovation-hubs",
+    name: "Kerala Innovation Hubs Search",
+    feedUrl: googleNewsSearch(
+      '"Technopark startup" OR "Infopark startup" OR "Cyberpark startup" OR "Maker Village" OR "Kerala IEDC" OR "IEDC Kerala" OR "K-DISC" startup when:45d',
+      {
+        ceid: "IN:en",
+        gl: "IN",
+        hl: "en-IN",
+      }
+    ),
+    region: "Kerala",
+    category: "Ecosystem",
+    sourceType: "search",
+    segment: segments.startupKerala,
+    isKsum: true,
+    isTraditional: true,
+  },
+  {
+    id: "google-kerala-startup-policy",
+    name: "Kerala Startup Policy and Grants Search",
+    feedUrl: googleNewsSearch(
+      '"Kerala startup policy" OR "Kerala innovation grant" OR "Kerala entrepreneurship" OR "Kerala startup scheme" OR "Kerala startup grant" when:45d',
+      {
+        ceid: "IN:en",
+        gl: "IN",
+        hl: "en-IN",
+      }
+    ),
+    region: "Kerala",
+    category: "Policy",
+    sourceType: "search",
+    segment: segments.startupKerala,
+    isKsum: true,
+    isTraditional: true,
+  },
+  {
+    id: "google-kerala-regional-press",
+    name: "Kerala Regional Startup Press Search",
+    feedUrl: googleNewsSearch(
+      'Kerala startup Malayalam OR KSUM Malayalam OR "Kerala Startup Mission" Malayalam OR "Kerala startup" Manorama OR "Kerala startup" Mathrubhumi OR "Kerala startup" Asianet when:45d',
+      {
+        ceid: "IN:en",
+        gl: "IN",
+        hl: "en-IN",
+      }
+    ),
+    region: "Kerala",
+    category: "Regional Press",
+    sourceType: "traditional",
+    segment: segments.startupKerala,
+    isKsum: true,
+    isTraditional: true,
+  },
+  {
+    id: "google-kerala-sector-startups",
+    name: "Kerala Sector Startup Search",
+    feedUrl: googleNewsSearch(
+      '"Kerala fintech startup" OR "Kerala healthtech startup" OR "Kerala agritech startup" OR "Kerala AI startup" OR "Kerala robotics startup" OR "Kerala deeptech startup" when:45d',
+      {
+        ceid: "IN:en",
+        gl: "IN",
+        hl: "en-IN",
+      }
+    ),
+    region: "Kerala",
+    category: "Startup Kerala",
+    sourceType: "search",
+    segment: segments.startupKerala,
+    isKsum: true,
+    isTraditional: true,
+  },
+  {
+    id: "google-ksum-legacy",
+    name: "Kerala Startup Mission Exact Search",
+    feedUrl: googleNewsSearch('"Kerala Startup Mission" OR KSUM when:45d', {
       ceid: "IN:en",
       gl: "IN",
       hl: "en-IN",
@@ -114,7 +258,7 @@ const sources = [
     id: "google-ksum-regional",
     name: "KSUM Regional Media Search",
     feedUrl: googleNewsSearch(
-      '"Kerala Startup Mission" Kerala Malayalam when:30d',
+      '"Kerala Startup Mission" Kerala Malayalam OR KSUM Kerala Malayalam when:45d',
       { ceid: "IN:en", gl: "IN", hl: "en-IN" }
     ),
     region: "Kerala",
@@ -128,7 +272,7 @@ const sources = [
     id: "google-startup-kerala",
     name: "Startup Kerala Search",
     feedUrl: googleNewsSearch(
-      '"Startup Kerala" OR "Kerala startups" OR "startups in Kerala" OR "Kerala startup ecosystem" OR "Kerala Startup Mission" when:30d',
+      '"Startup Kerala" OR "Kerala startups" OR "startups in Kerala" OR "Kerala startup ecosystem" OR "Kerala Startup Mission" OR "Kerala-based startup" when:45d',
       { ceid: "IN:en", gl: "IN", hl: "en-IN" }
     ),
     region: "Kerala",
@@ -142,7 +286,7 @@ const sources = [
     id: "google-kochi-startups",
     name: "Kochi and Kerala Startup Search",
     feedUrl: googleNewsSearch(
-      '"Kochi startup" OR "Kerala startup" OR "Technopark startup" OR "Maker Village" OR "IEDC Kerala" when:30d',
+      '"Kochi startup" OR "Kerala startup" OR "Technopark startup" OR "Infopark startup" OR "Maker Village" OR "IEDC Kerala" OR "Cyberpark startup" when:45d',
       { ceid: "IN:en", gl: "IN", hl: "en-IN" }
     ),
     region: "Kerala",
@@ -156,7 +300,7 @@ const sources = [
     id: "google-ksum-social",
     name: "KSUM Social Media Mentions",
     feedUrl: googleNewsSearch(
-      '"Kerala Startup Mission" Instagram OR LinkedIn OR Facebook OR YouTube OR X OR Twitter when:30d',
+      '"Kerala Startup Mission" Instagram OR "Kerala Startup Mission" LinkedIn OR KSUM Instagram OR KSUM LinkedIn OR KSUM YouTube OR KSUM Twitter when:45d',
       { ceid: "IN:en", gl: "IN", hl: "en-IN" }
     ),
     region: "Kerala",
@@ -171,7 +315,7 @@ const sources = [
     id: "google-startup-kerala-social",
     name: "Startup Kerala Social Mentions",
     feedUrl: googleNewsSearch(
-      '"Startup Kerala" Instagram OR "Kerala startups" LinkedIn OR "KSUM" Instagram OR "Kerala Startup Mission" YouTube when:30d',
+      '"Startup Kerala" Instagram OR "Kerala startups" LinkedIn OR "Kerala-based startup" LinkedIn OR "Kochi startup" Instagram OR "Kerala Startup Mission" YouTube when:45d',
       { ceid: "IN:en", gl: "IN", hl: "en-IN" }
     ),
     region: "Kerala",
@@ -282,10 +426,25 @@ const traditionalPublishers = [
   "economic times",
   "mint",
   "business standard",
+  "deccan herald",
   "mathrubhumi",
+  "malayala manorama",
   "manorama",
   "onmanorama",
   "new indian express",
+  "the news minute",
+  "south first",
+  "kerala kaumudi",
+  "deshabhimani",
+  "madhyamam",
+  "asianet news",
+  "news18 malayalam",
+  "mediaone",
+  "reporter tv",
+  "twentyfour news",
+  "kairali",
+  "deepika",
+  "mangalam",
   "ani",
   "reuters",
   "bbc",
@@ -296,16 +455,50 @@ const startupKeralaKeywords = [
   "ksum",
   "startup kerala",
   "kerala startups",
+  "startups kerala",
   "startups in kerala",
   "kerala startup ecosystem",
   "kerala startup",
+  "kerala-based startup",
+  "kerala based startup",
+  "kerala-based startups",
+  "kerala based startups",
+  "kerala entrepreneur",
+  "kerala entrepreneurship",
   "kochi startup",
   "kochi startups",
+  "kochi-based startup",
+  "kochi based startup",
+  "thiruvananthapuram startup",
+  "trivandrum startup",
+  "kozhikode startup",
+  "calicut startup",
+  "thrissur startup",
+  "malappuram startup",
   "technopark startup",
+  "infopark startup",
+  "cyberpark startup",
   "maker village",
   "iedc kerala",
+  "kerala iedc",
+  "k-disc startup",
+  "kdisc startup",
   "startup mission kerala",
   "malabar startup",
+  "kerala innovation grant",
+  "kerala startup grant",
+  "kerala startup policy",
+  "kerala startup scheme",
+  "startup incubator kerala",
+  "accelerator kerala",
+  "student startup kerala",
+  "women startup kerala",
+  "kerala fintech startup",
+  "kerala healthtech startup",
+  "kerala agritech startup",
+  "kerala ai startup",
+  "kerala robotics startup",
+  "kerala deeptech startup",
 ];
 
 const socialPlatforms = [

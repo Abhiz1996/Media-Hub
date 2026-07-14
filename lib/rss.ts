@@ -38,14 +38,79 @@ const TRADITIONAL_PUBLISHERS = [
   "business standard",
   "deccan herald",
   "mathrubhumi",
+  "malayala manorama",
   "manorama",
   "onmanorama",
   "new indian express",
+  "the news minute",
+  "south first",
+  "kerala kaumudi",
+  "deshabhimani",
+  "madhyamam",
+  "asianet news",
+  "news18 malayalam",
+  "mediaone",
+  "reporter tv",
+  "twentyfour news",
+  "kairali",
+  "deepika",
+  "mangalam",
   "ptc news",
   "ani",
   "reuters",
   "associated press",
   "bbc",
+];
+
+const STARTUP_KERALA_KEYWORDS = [
+  "kerala startup mission",
+  "ksum",
+  "startup kerala",
+  "kerala startups",
+  "startups kerala",
+  "startups in kerala",
+  "kerala startup ecosystem",
+  "kerala startup",
+  "kerala-based startup",
+  "kerala based startup",
+  "kerala-based startups",
+  "kerala based startups",
+  "kerala entrepreneur",
+  "kerala entrepreneurship",
+  "kochi startup",
+  "kochi startups",
+  "kochi-based startup",
+  "kochi based startup",
+  "thiruvananthapuram startup",
+  "trivandrum startup",
+  "kozhikode startup",
+  "calicut startup",
+  "thrissur startup",
+  "malappuram startup",
+  "technopark startup",
+  "infopark startup",
+  "cyberpark startup",
+  "maker village",
+  "iedc kerala",
+  "kerala iedc",
+  "k-disc startup",
+  "kdisc startup",
+  "startup mission kerala",
+  "malabar startup",
+  "kerala innovation grant",
+  "kerala startup grant",
+  "kerala startup policy",
+  "kerala startup scheme",
+  "startup incubator kerala",
+  "accelerator kerala",
+  "student startup kerala",
+  "women startup kerala",
+  "kerala fintech startup",
+  "kerala healthtech startup",
+  "kerala agritech startup",
+  "kerala ai startup",
+  "kerala robotics startup",
+  "kerala deeptech startup",
 ];
 
 function asArray<T>(value: T | T[] | undefined | null): T[] {
@@ -128,11 +193,7 @@ function isKsumArticle(
   sourceName: string
 ) {
   const haystack = `${title} ${summary} ${sourceName}`.toLowerCase();
-  return (
-    Boolean(source.isKsum) ||
-    haystack.includes("kerala startup mission") ||
-    /\bksum\b/i.test(haystack)
-  );
+  return Boolean(source.isKsum) || STARTUP_KERALA_KEYWORDS.some((keyword) => haystack.includes(keyword));
 }
 
 function isTraditionalArticle(source: NewsSource, sourceName: string, url: string) {
