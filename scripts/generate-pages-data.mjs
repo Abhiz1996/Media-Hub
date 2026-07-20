@@ -349,8 +349,8 @@ const sources = [
     category: "Social Media",
     sourceType: "social",
     segment: segments.socialMentions,
-    isKsum: true,
     isSocial: true,
+    requireStartupKeralaKeyword: true,
   },
   {
     id: "hackernews-startup",
@@ -542,6 +542,61 @@ function stripTags(value) {
   return value.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim();
 }
 
+function normalizeTitle(value) {
+  return value
+    .toLowerCase()
+    .replace(/&nbsp;/g, " ")
+    .replace(/[']/g, "")
+    .replace(/\s+[-|]\s+[^-|]{2,80}$/g, "")
+    .replace(/[^a-z0-9]+/g, " ")
+    .trim();
+}
+
+function articleDedupeKeys(article) {
+  const titleKey = normalizeTitle(article.title);
+  const keys = [article.id];
+  if (titleKey.length >= 12) {
+    keys.push(`title:${titleKey}`);
+  }
+  return keys;
+}
+
+function articlePriority(article) {
+  const publishedAt = new Date(article.publishedAt).getTime();
+  return (
+    (article.isSocial ? 0 : 1000) +
+    (article.segment === segments.startupKerala ? 250 : 0) +
+    (article.isTraditional ? 100 : 0) +
+    (article.isKsum ? 50 : 0) +
+    Math.floor((Number.isNaN(publishedAt) ? 0 : publishedAt) / 100000000)
+  );
+}
+
+function mergeArticle(primary, duplicate) {
+  return {
+    ...primary,
+    isKsum: primary.isKsum || duplicate.isKsum,
+    isTraditional: primary.isTraditional || duplicate.isTraditional,
+  };
+}
+
+function upsertSeenArticle(seen, article) {
+  const keys = articleDedupeKeys(article);
+  const duplicate = keys.map((key) => seen.get(key)).find(Boolean);
+
+  if (!duplicate) {
+    for (const key of keys) seen.set(key, article);
+    return;
+  }
+
+  const preferred =
+    articlePriority(article) > articlePriority(duplicate)
+      ? mergeArticle(article, duplicate)
+      : mergeArticle(duplicate, article);
+  Object.assign(duplicate, preferred);
+  for (const key of keys) seen.set(key, duplicate);
+}
+
 function normalizeUrl(rawUrl) {
   try {
     const url = new URL(rawUrl);
@@ -601,8 +656,8 @@ function monthInIndia(date = new Date()) {
   return dayInIndia(date).slice(0, 7);
 }
 
-function isKsumArticle(source, title, summary, sourceName) {
-  const haystack = `${title} ${summary} ${sourceName}`.toLowerCase();
+function isKsumArticle(source, title, summary) {
+  const haystack = `${title} ${summary}`.toLowerCase();
   return Boolean(source.isKsum) || startupKeralaKeywords.some((keyword) => haystack.includes(keyword));
 }
 
@@ -643,7 +698,7 @@ function parseFeed(xml, source) {
         readText(item.pubDate ?? item.published ?? item.updated ?? item["dc:date"])
       );
       const publishedDate = new Date(publishedAt);
-      const isKsum = isKsumArticle(source, title, summary, sourceName);
+      const isKsum = isKsumArticle(source, title, summary);
       const socialPlatform = socialPlatformFor(source, title, summary, sourceName, canonicalUrl);
 
       return {
@@ -667,7 +722,10 @@ function parseFeed(xml, source) {
         socialPlatform,
       };
     })
-    .filter(Boolean);
+    .filter((article) => {
+      if (!article) return false;
+      return !source.requireStartupKeralaKeyword || article.isKsum;
+    });
 }
 
 async function fetchFeed(source) {
@@ -720,7 +778,7 @@ async function main() {
       const xml = await fetchFeed(source);
       const limit = source.isKsum ? 100 : 45;
       for (const article of parseFeed(xml, source).slice(0, limit)) {
-        if (!seen.has(article.id)) seen.set(article.id, article);
+        upsertSeenArticle(seen, article);
       }
     } catch (error) {
       failures.push({
@@ -730,7 +788,7 @@ async function main() {
     }
   }
 
-  const articles = Array.from(seen.values()).sort(
+  const articles = Array.from(new Set(seen.values())).sort(
     (a, b) => new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime()
   );
   const today = dayInIndia();
@@ -753,7 +811,8 @@ async function main() {
     indiaStartup: articles.filter((article) => article.segment === segments.indiaStartup),
     indiaNational: articles.filter((article) => article.segment === segments.indiaNational),
     startupKerala: articles.filter(
-      (article) => article.segment === segments.startupKerala || article.isKsum
+      (article) =>
+        !article.isSocial && (article.segment === segments.startupKerala || article.isKsum)
     ),
     socialMentions: articles.filter(
       (article) => article.segment === segments.socialMentions || article.isSocial
@@ -768,7 +827,7 @@ async function main() {
     stats: {
       todayCount: articles.filter((article) => article.publishedDay === today).length,
       monthCount: articles.filter((article) => article.publishedMonth === month).length,
-      ksumCount: articles.filter((article) => article.isKsum).length,
+      ksumCount: bySegment.startupKerala.length,
       socialCount: bySegment.socialMentions.length,
       traditionalCount: articles.filter((article) => article.isTraditional).length,
       totalCount: articles.length,
