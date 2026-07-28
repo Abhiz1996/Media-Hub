@@ -514,6 +514,31 @@ const socialPlatforms = [
   "ycombinator",
 ];
 
+const titleStopWords = new Set([
+  "the",
+  "and",
+  "for",
+  "with",
+  "from",
+  "into",
+  "that",
+  "this",
+  "these",
+  "those",
+  "kerala",
+  "startup",
+  "startups",
+  "ksum",
+  "mission",
+  "india",
+  "indian",
+  "news",
+  "says",
+  "said",
+  "set",
+  "new",
+]);
+
 const parser = new XMLParser({
   attributeNamePrefix: "",
   cdataPropName: "cdata",
@@ -546,10 +571,50 @@ function normalizeTitle(value) {
   return value
     .toLowerCase()
     .replace(/&nbsp;/g, " ")
-    .replace(/[']/g, "")
-    .replace(/\s+[-|]\s+[^-|]{2,80}$/g, "")
+    .replace(/[‘’']/g, "")
+    .replace(/\s+[-–—|]\s+[^-–—|]{2,80}$/u, "")
     .replace(/[^a-z0-9]+/g, " ")
     .trim();
+}
+
+function titleTokens(value) {
+  return normalizeTitle(value)
+    .split(/\s+/)
+    .filter((token) => token.length > 2 && !titleStopWords.has(token));
+}
+
+function titleOverlap(firstTitle, secondTitle) {
+  const first = new Set(titleTokens(firstTitle));
+  const second = new Set(titleTokens(secondTitle));
+  const shared = Array.from(first).filter((token) => second.has(token)).length;
+  const union = new Set([...first, ...second]).size;
+  return {
+    score: union === 0 ? 0 : shared / union,
+    shared,
+  };
+}
+
+function dayGap(firstArticle, secondArticle) {
+  const first = new Date(firstArticle.publishedAt).getTime();
+  const second = new Date(secondArticle.publishedAt).getTime();
+  if (Number.isNaN(first) || Number.isNaN(second)) return 0;
+  return Math.abs(first - second) / 86400000;
+}
+
+function isStartupKeralaNews(article) {
+  return !article.isSocial && (article.segment === segments.startupKerala || article.isKsum);
+}
+
+function isDuplicateStory(firstArticle, secondArticle) {
+  const sameSource = firstArticle.sourceName === secondArticle.sourceName;
+  const sameSection = firstArticle.segment === secondArticle.segment;
+  const bothStartupKerala = isStartupKeralaNews(firstArticle) && isStartupKeralaNews(secondArticle);
+
+  if (!bothStartupKerala && !(sameSource && sameSection)) return false;
+  if (dayGap(firstArticle, secondArticle) > 14) return false;
+
+  const overlap = titleOverlap(firstArticle.title, secondArticle.title);
+  return overlap.shared >= 4 && overlap.score >= (sameSource ? 0.45 : 0.55);
 }
 
 function articleDedupeKeys(article) {
@@ -582,7 +647,11 @@ function mergeArticle(primary, duplicate) {
 
 function upsertSeenArticle(seen, article) {
   const keys = articleDedupeKeys(article);
-  const duplicate = keys.map((key) => seen.get(key)).find(Boolean);
+  const duplicate =
+    keys.map((key) => seen.get(key)).find(Boolean) ??
+    Array.from(new Set(seen.values())).find((seenArticle) =>
+      isDuplicateStory(seenArticle, article)
+    );
 
   if (!duplicate) {
     for (const key of keys) seen.set(key, article);
