@@ -1090,7 +1090,12 @@
         });
 
         try {
-          const initialData = window.__NEWS_DATA__ ?? (await fetchLatestData());
+          let initialData = window.__NEWS_DATA__;
+          try {
+            initialData = await fetchLatestData();
+          } catch (error) {
+            if (!initialData) throw error;
+          }
           applyData(initialData);
         } catch (error) {
           document.getElementById("updated-at").textContent =
