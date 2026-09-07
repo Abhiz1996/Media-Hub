@@ -199,6 +199,22 @@
         opacity: 0.6;
       }
 
+      .refresh-tab.is-stale {
+        background: #422006;
+        border-color: rgba(251, 191, 36, 0.42);
+      }
+
+      .refresh-tab.is-stale .refresh-dot {
+        background: #f59e0b;
+        box-shadow: 0 0 0 5px rgba(245, 158, 11, 0.2);
+      }
+
+      .refresh-tab.is-stale .refresh-schedule {
+        background: rgba(251, 191, 36, 0.16);
+        border-color: rgba(251, 191, 36, 0.28);
+        color: #fde68a;
+      }
+
       .metrics {
         display: grid;
         gap: 10px;
@@ -556,8 +572,8 @@
           <p class="subcopy">
             Public dashboard for international startup news, India startup
             coverage, Startup Kerala and KSUM mentions, and public social-media
-            coverage signals. Data refreshes automatically 6 times daily:
-            09:00, 10:00, 12:00, 15:00, 18:00, and 21:00 IST.
+            coverage signals. Data refreshes automatically every hour from
+            07:55 to 21:55 IST, with multiple safety-net checks before 10:00.
           </p>
         </div>
         <div class="status-box">
@@ -635,7 +651,8 @@
           <p class="note" id="data-note">
             Social mentions combine public RSS from Reddit and Hacker News with
             Google News social-platform searches. The dashboard rebuilds every
-            few hours and this page re-checks for fresh data automatically.
+            hour during the day and this page re-checks for fresh data
+            automatically.
             Direct Instagram, LinkedIn, Facebook, or X post tracking needs each
             platform's official API and access tokens, so it is not scraped here.
           </p>
@@ -653,7 +670,7 @@
       </div>
       <div class="refresh-actions">
         <span class="refresh-schedule" id="refresh-schedule">
-          Auto-refreshes 6x daily
+          Auto-refreshes hourly, 07:55-21:55 IST
         </span>
         <button class="refresh-btn" id="manual-refresh-btn" type="button" title="Check for new data now">
           ↻ Refresh now
@@ -690,14 +707,14 @@
         timeZone: "Asia/Kolkata",
         year: "numeric",
       });
-      const refreshSlots = [
-        { label: "09:00", minutes: 9 * 60 },
-        { label: "10:00", minutes: 10 * 60 },
-        { label: "12:00", minutes: 12 * 60 },
-        { label: "15:00", minutes: 15 * 60 },
-        { label: "18:00", minutes: 18 * 60 },
-        { label: "21:00", minutes: 21 * 60 },
-      ];
+      const refreshSlots = Array.from({ length: 15 }, (_, index) => {
+        const hour = index + 7;
+        return {
+          label: `${String(hour).padStart(2, "0")}:55`,
+          minutes: hour * 60 + 55,
+        };
+      });
+      const STALE_AFTER_MS = 4 * 60 * 60 * 1000;
 
       const tabs = {
         international: {
@@ -818,16 +835,31 @@
         const nextSlot = refreshSlots.find((slot) => slot.minutes > currentMinutes);
         const slot = nextSlot || refreshSlots[0];
         const dayLabel = nextSlot ? "today" : "tomorrow";
-        return `Next scheduled refresh: ${slot.label} IST ${dayLabel} - 6x daily`;
+        return `Next scheduled refresh: ${slot.label} IST ${dayLabel} - hourly safety net`;
+      }
+
+      function refreshAgeLabel(refreshedAt) {
+        const ageMinutes = Math.max(0, Math.round((Date.now() - refreshedAt.getTime()) / 60000));
+        if (ageMinutes < 60) return `${ageMinutes} min old`;
+        const hours = Math.floor(ageMinutes / 60);
+        const minutes = ageMinutes % 60;
+        return minutes ? `${hours} hr ${minutes} min old` : `${hours} hr old`;
       }
 
       function renderRefreshStatus(generatedAt) {
         const refreshedAt = new Date(generatedAt);
+        const refreshTab = document.querySelector(".refresh-tab");
+        const isStale = Date.now() - refreshedAt.getTime() > STALE_AFTER_MS;
         const readableTime = fullDateTime.format(refreshedAt);
         document.getElementById("updated-at").textContent =
-          `Last news refresh: ${dateTime.format(refreshedAt)}`;
+          isStale
+            ? `Refresh delayed: ${dateTime.format(refreshedAt)}`
+            : `Last news refresh: ${dateTime.format(refreshedAt)}`;
         document.getElementById("bottom-updated-at").textContent = readableTime;
-        document.getElementById("refresh-schedule").textContent = nextRefreshLabel();
+        document.getElementById("refresh-schedule").textContent = isStale
+          ? `Data is ${refreshAgeLabel(refreshedAt)}. ${nextRefreshLabel()}`
+          : nextRefreshLabel();
+        refreshTab?.classList.toggle("is-stale", isStale);
       }
 
       function countBy(items, key) {
@@ -1066,7 +1098,7 @@
           document.getElementById("bottom-updated-at").textContent =
             "Refresh data unavailable";
           document.getElementById("refresh-schedule").textContent =
-            "Auto-refreshes 6x daily";
+            "Auto-refreshes hourly, 07:55-21:55 IST";
           document.getElementById("feed-list").innerHTML =
             '<p class="error">The public dashboard data is not available yet. The next GitHub Pages refresh will rebuild it.</p>';
         }

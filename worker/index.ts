@@ -50,11 +50,11 @@ const worker = {
     return handler.fetch(request, env, ctx);
   },
   async scheduled(
-    _controller: ScheduledController,
+    controller: ScheduledController,
     env: Env,
     ctx: ExecutionContext
   ): Promise<void> {
-    ctx.waitUntil(runNewsIngestion(env.DB, { trigger: "cron-10am-ist" }));
+    ctx.waitUntil(runNewsIngestion(env.DB, { trigger: `cron-${controller.cron}` }));
   },
 };
 

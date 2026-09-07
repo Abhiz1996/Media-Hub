@@ -14,14 +14,19 @@ and Kerala Startup Mission mentions across web and traditional media sources.
 
 ## Backend Refresh
 
-The Worker exports a scheduled handler and `vite.config.ts` declares:
+The GitHub Pages workflow rebuilds the public dashboard data on push, on manual
+dispatch, and on an hourly safety-net schedule from 07:55 to 21:55 IST:
 
 ```cron
-30 4 * * *
+25 2-16 * * *
 ```
 
-That is 04:30 UTC, which is 10:00 IST. The same ingestion can be triggered
-manually:
+GitHub cron uses UTC, so the schedule above runs at 02:25-16:25 UTC. The extra
+morning runs give the dashboard multiple chances to refresh before 10:00 IST.
+
+For the server-backed Worker version, `vite.config.ts` declares the same cron
+schedule and the scheduled handler runs the ingestion pipeline. The same
+ingestion can be triggered manually:
 
 ```bash
 curl -X POST http://localhost:3000/api/refresh

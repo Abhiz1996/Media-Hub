@@ -132,7 +132,7 @@ export default async function Home() {
             </h1>
             <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-600">
               Daily startup, industry, and Kerala Startup Mission coverage,
-              refreshed by the backend every morning at 10:00 IST.
+              refreshed by backend safety-net checks throughout the day.
             </p>
           </div>
           <div className="rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-900 lg:min-w-80">
