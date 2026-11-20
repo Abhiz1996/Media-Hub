@@ -160,7 +160,9 @@
         border: 1px solid rgba(255, 255, 255, 0.1);
         border-radius: 999px;
         color: #e2e8f0;
-        flex: 0 0 auto;
+        flex: 1 1 auto;
+        min-width: 0;
+        overflow-wrap: anywhere;
         padding: 8px 10px;
         text-align: right;
         text-transform: none;
@@ -170,6 +172,7 @@
         align-items: center;
         display: flex;
         gap: 10px;
+        min-width: 0;
       }
 
       .refresh-btn {
@@ -572,8 +575,8 @@
           <p class="subcopy">
             Public dashboard for international startup news, India startup
             coverage, Startup Kerala and KSUM mentions, and public social-media
-            coverage signals. Data refreshes automatically every hour from
-            07:55 to 21:55 IST, with multiple safety-net checks before 10:00.
+            coverage signals. Refreshes are scheduled hourly from
+            07:55 to 21:55 IST. Scheduled runs may be delayed.
           </p>
         </div>
         <div class="status-box">
@@ -957,7 +960,7 @@
 
         const max = Math.max(1, ...rows.map((row) => row.count));
         target.innerHTML = rows
-          .slice(0, 12)
+          .slice(0, keyName === "day" ? 14 : 12)
           .map((row) => {
             const label = row[keyName] || row.label;
             const width = Math.max(4, (row.count / max) * 100);
@@ -1081,6 +1084,8 @@
           }
         } catch {
           // Keep the currently displayed data if a refresh check fails.
+        } finally {
+          if (dashboardData) renderRefreshStatus(dashboardData.generatedAt);
         }
       }
 
@@ -1109,6 +1114,9 @@
         }
 
         window.setInterval(pollForUpdates, REFRESH_INTERVAL_MS);
+        window.setInterval(() => {
+          if (dashboardData) renderRefreshStatus(dashboardData.generatedAt);
+        }, 60 * 1000);
 
         document.getElementById("manual-refresh-btn").addEventListener("click", async function () {
           const btn = this;
@@ -1120,7 +1128,8 @@
               applyData(latest);
               btn.textContent = "✓ Updated!";
             } else {
-              btn.textContent = "✓ Already latest";
+              renderRefreshStatus(dashboardData.generatedAt);
+              btn.textContent = "No newer data";
             }
           } catch {
             btn.textContent = "✗ Failed";

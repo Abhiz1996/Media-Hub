@@ -860,6 +860,9 @@ async function main() {
   const articles = Array.from(new Set(seen.values())).sort(
     (a, b) => new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime()
   );
+  if (articles.length === 0) {
+    throw new Error("No articles collected; keeping the last published dashboard.");
+  }
   const today = dayInIndia();
   const month = monthInIndia();
   const days = lastNDays(14);
